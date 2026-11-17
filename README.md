@@ -26,7 +26,8 @@ The same function is called by every step that needs cell outlines, so the cells
 
 ## Repository structure
 
-```Bacteria-Image-Analysis-MATLAB/
+```
+Bacteria-Image-Analysis-MATLAB/
 ├── MAIN_SCRIPT_BACTERIA.m      # main analysis script, run it section by section
 ├── Functions/                  # functions called by the main script
 └── <condition folders>         # your images (see Data format)
