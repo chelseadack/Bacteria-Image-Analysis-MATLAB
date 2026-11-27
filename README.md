@@ -1,17 +1,17 @@
 # Bacteria GFP quantification (MATLAB)
 
-Automated detection of bacteria in 100× brightfield microscope images, with per-cell GFP fluorescence measurement and population-level analysis of a genetic switch.
+Automated detection of E. coli in 100× brightfield microscope images, with per-cell GFP fluorescence measurement and population-level analysis of a genetic switch.
 
 The pipeline finds every cell in a brightfield image, measures the mean GFP fluorescence in each one, and compares conditions using:
 
 - per-cell distributions on an asinh scale (swarm plots and histograms), for each biological repeat and for the whole population
-- a single GFP-positive gate set from the negative control cells of all repeats (95th percentile), used for every repeat. No background subtraction is needed, because cells are classified relative to the negative control.
+- a single GFP-positive gate set from the negative control cells of all repeats (95th percentile), used for every repeat.
 - the % of GFP-positive cells and the fold change vs the negative control, with one data point per biological repeat
 - a switch response normalised between the negative (0%) and positive (100%) controls
 
-## Cell detection
+## Step 1. Cell detection
 
-Bacteria in brightfield can appear darker **or** brighter than the background, and they are often packed into dense aggregates. `func_detect_bacteria.m` handles both:
+Bacteria in brightfield can appear darker or brighter than the background, and they are often packed into dense aggregates. `func_detect_bacteria.m` handles both:
 
 1. **Flatten illumination:** subtract a Gaussian-blurred (σ = 50 px) copy of the image.
 2. **Contrast image:** take the absolute deviation from the background, so both dark and bright cells become bright objects.
@@ -24,28 +24,29 @@ Bacteria in brightfield can appear darker **or** brighter than the background, a
 
 The same function is called by every step that needs cell outlines, so the cells are always detected identically and in the same order.
 
-## Repository structure
+Detection can be validated for individual images using `func_test_detection_bacteria`:  
+<img src="example_imgs/test_detection.png" width="550" height="400">
 
-```
-Bacteria-Image-Analysis-MATLAB/
-├── MAIN_SCRIPT_BACTERIA.m      # main analysis script, run it section by section
-├── Functions/                  # functions called by the main script
-└── <condition folders>         # your images (see Data format)
-```
+## Step 2. Fluorescence measurement
 
-| File | Purpose |
-|---|---|
-| `MAIN_SCRIPT_BACTERIA.m` | Main analysis script. Run it section by section. |
-| `Functions/func_load_images_bacteria.m` | Loads the brightfield/GFP image pairs for one condition folder |
-| `Functions/func_detect_bacteria.m` | Cell segmentation (see above) |
-| `Functions/func_detect_measure_bacteria.m` | Detects cells in every image and measures the mean GFP per cell |
-| `Functions/func_gate_threshold.m` | GFP-positive gate (percentile of the negative control cells) |
-| `Functions/func_percent_positive_table.m` | % GFP-positive cells per image, and the average of each repeat |
-| `Functions/func_plot_swarm_bacteria.m` | Swarm plot of every cell, with the gate |
-| `Functions/func_plot_smoothed_histogram_bacteria.m` | Smoothed histograms of every cell, with the gate |
-| `Functions/func_test_detection_bacteria.m` | QC figure: detected cell outlines on the brightfield and GFP images |
-| `Functions/func_plot_MES_for_sample_bacteria.m` | QC figure: each cell coloured by its measured fluorescence |
-| `Functions/func_al_goodplot.m` | Third-party violin/box plot function (see Acknowledgements) |
+The average GFP fluorescence intensity of each detected bacteria is calculated. Since the bacteria display a switch response, a single GFP-positive gate can be set from the negative control cells of all repeats (95th percentile) or set manually based on where the two populations fall. No background subtraction is needed, because cells are classified relative to the negative control.
+
+Fluorescence intensity of the bacteria can be visualised as a swarm plot, as a pooled population or for each repeat:  
+<img src="example_imgs/plot_swarm_population.png" width="200" height="300">
+
+Fluorescence intensity of the bacteria can be visualised as a histogram plot, as a pooled population or for each repeat:  
+<img src="example_imgs/plot_histogram_population.png" width="350" height="250">
+
+The switch response can be visualised in a plot, normalised between the negative (0%) and positive (100%) controls:  
+<img src="example_imgs/plot_switch.png" width="200" height="300">
+
+Calculated fluorescence values can be validated for individual images using `func_plot_MES_for_sample_bacteria`:  
+<img src="example_imgs/test_calculated_values.png" width="350" height="350">
+
+Violin plots visualise the proportion of GFP-positive bacteria in each image or each repeat, as percentage or fold-change relative to the negative control:  
+<img src="example_imgs/plot_violin.png" width="200" height="300">
+
+Figures, tables, and parameters can be saved by running the last section of the script.
 
 ## Data format
 
